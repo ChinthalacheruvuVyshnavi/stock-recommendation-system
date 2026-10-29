@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Based Stock Recommendation System</title>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="loader-overlay" id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Analyzing Stock...</div>
+        <div class="loader-subtext">Fetching market trend, news headlines, and sentiment results</div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1 class="hero-title">Deep Learning Based Stock Recommendation System</h1>
+            <p class="hero-subtitle">Financial News Sentiment + Market Trend + Buy/Sell/Hold Recommendation</p>
+
+            <form action="/predict" method="post" class="form-box" id="stockForm">
+                <input
+                    type="text"
+                    id="company"
+                    name="company"
+                    placeholder="Enter NSE Symbol or Company Name (e.g. TCS, INFY, RELIANCE)"
+                    list="recentCompanies"
+                    autocomplete="off"
+                    required
+                >
+
+                <datalist id="recentCompanies"></datalist>
+
+                <button type="submit">Analyze Stock</button>
+            </form>
+
+            <div class="help-box">
+                <p><strong>Examples:</strong> TCS, INFY, WIPRO, RELIANCE, HDFCBANK</p>
+                <p>This system combines stock market trend analysis, financial news sentiment analysis using FinBERT, and moving average comparison to generate investment recommendations.</p>
+            </div>
+
+            <div class="help-box">
+                <p><strong>System Features:</strong></p>
+                <p>📈 Company symbol validation</p>
+                <p>📰 Financial news sentiment prediction</p>
+                <p>📊 Price trend analysis using Yahoo Finance</p>
+                <p>✅ Final recommendation: Buy / Sell / Hold</p>
+            </div>
+
+            <div class="help-box">
+                <p><strong>Recent Searches:</strong></p>
+                <div id="recentSearches" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("stockForm");
+        const input = document.getElementById("company");
+        const datalist = document.getElementById("recentCompanies");
+        const recentSearchesDiv = document.getElementById("recentSearches");
+        const loader = document.getElementById("loader");
+
+        let recentCompanies = JSON.parse(localStorage.getItem("recentCompanies")) || [];
+
+        function normalizeValue(value) {
+            return value.trim().toUpperCase();
+        }
+
+        function renderRecentCompanies() {
+            datalist.innerHTML = "";
+            recentSearchesDiv.innerHTML = "";
+
+            recentCompanies.forEach(company => {
+                const option = document.createElement("option");
+                option.value = company;
+                datalist.appendChild(option);
+
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.textContent = company;
+                chip.className = "search-chip";
+
+                chip.addEventListener("click", () => {
+                    input.value = company;
+                });
+
+                recentSearchesDiv.appendChild(chip);
+            });
+
+            if (recentCompanies.length === 0) {
+                recentSearchesDiv.innerHTML = "<span class='empty-text'>No recent searches yet</span>";
+            }
+        }
+
+        renderRecentCompanies();
+
+        form.addEventListener("submit", function () {
+            let value = normalizeValue(input.value);
+
+            if (!value) return;
+
+            recentCompanies = recentCompanies.filter(item => item !== value);
+            recentCompanies.unshift(value);
+
+            if (recentCompanies.length > 5) {
+                recentCompanies = recentCompanies.slice(0, 5);
+            }
+
+            localStorage.setItem("recentCompanies", JSON.stringify(recentCompanies));
+
+            loader.classList.add("active");
+        });
+    </script>
+</body>
+</html>

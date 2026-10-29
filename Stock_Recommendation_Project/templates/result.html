@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis Result</title>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+
+{% if error %}
+    <div class="card">
+        <h2>❌ Error</h2>
+        <p>{{ error }}</p>
+        <div class="footer-btn">
+            <a href="/" class="back-btn">Go Back</a>
+        </div>
+    </div>
+{% else %}
+
+    <div class="card">
+        <h1>Stock Analysis Dashboard</h1>
+        <div class="symbol-pill">{{ stock.company_name }} ({{ stock.symbol }})</div>
+
+        <div class="result-badge {{ result.recommendation|lower }}">
+            {% if result.recommendation == "BUY" %}
+                ✅ Recommendation: BUY
+            {% elif result.recommendation == "SELL" %}
+                ❌ Recommendation: SELL
+            {% else %}
+                ⏳ Recommendation: HOLD
+            {% endif %}
+        </div>
+
+        <p class="small-note">
+            This recommendation is generated using market trend indicators, moving averages, and financial news sentiment analysis.
+        </p>
+
+        <div class="metrics">
+            <div class="metric-card">
+                <h4>💰 Current Price</h4>
+                <p>₹{{ stock.current_price }}</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>📉 Previous Close</h4>
+                <p>₹{{ stock.previous_close }}</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>🔁 Day Change</h4>
+                <p>₹{{ stock.change }}</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>📊 Change %</h4>
+                <p>{{ stock.change_pct }}%</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>📅 5-Day MA</h4>
+                <p>₹{{ stock.ma_5 }}</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>🗓️ 20-Day MA</h4>
+                <p>₹{{ stock.ma_20 }}</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>📈 Trend</h4>
+                <p>{{ stock.trend }}</p>
+            </div>
+
+            <div class="metric-card">
+                <h4>🧠 Sentiment Score</h4>
+                <p>{{ result.sentiment_score }}</p>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="info-box">
+                <h3 class="section-title">📌 Market Snapshot</h3>
+                <p><strong>Yahoo Finance Symbol:</strong> {{ stock.yahoo_symbol }}</p>
+                <p><strong>Current Price:</strong> ₹{{ stock.current_price }}</p>
+                <p><strong>Previous Close:</strong> ₹{{ stock.previous_close }}</p>
+                <p><strong>Day Change:</strong> ₹{{ stock.change }} ({{ stock.change_pct }}%)</p>
+                <p><strong>5-Day Moving Average:</strong> ₹{{ stock.ma_5 }}</p>
+                <p><strong>20-Day Moving Average:</strong> ₹{{ stock.ma_20 }}</p>
+                <p><strong>Trend Direction:</strong> {{ stock.trend }}</p>
+            </div>
+
+            <div class="info-box">
+                <h3 class="section-title">📰 Sentiment Summary</h3>
+                <p><strong>Sentiment Score:</strong> {{ result.sentiment_score }}</p>
+                <p><strong>Positive Headlines:</strong> {{ result.counts.positive }}</p>
+                <p><strong>Negative Headlines:</strong> {{ result.counts.negative }}</p>
+                <p><strong>Neutral Headlines:</strong> {{ result.counts.neutral }}</p>
+                <p><strong>Total Headlines Used:</strong> {{ result.headlines_used }}</p>
+            </div>
+        </div>
+
+        <div class="info-box chart-box">
+            <h3 class="section-title">📉 Stock Price Chart (Last 3 Months)</h3>
+            {% if chart %}
+                <img src="{{ url_for('static', filename=chart) }}" alt="Stock Price Chart">
+                <p class="small-note">Chart shows recent stock movement used for trend evaluation.</p>
+            {% else %}
+                <p>Chart not available.</p>
+            {% endif %}
+        </div>
+
+        <div class="info-box">
+            <h3 class="section-title">📝 Reason for Recommendation</h3>
+            <ul>
+                {% for item in result.reason %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h3 class="section-title">🗞️ News Headlines with Sentiment</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Headline</th>
+                        <th>Sentiment</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for headline in headlines %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ headline }}</td>
+                        <td class="{{ sentiments[loop.index0].label }}">
+                            {{ sentiments[loop.index0].label|upper }}
+                        </td>
+                        <td>{{ sentiments[loop.index0].confidence }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-btn">
+            <a href="/" class="back-btn">Analyze Another Stock</a>
+        </div>
+    </div>
+
+{% endif %}
+
+</div>
+</body>
+</html>

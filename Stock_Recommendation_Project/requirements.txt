@@ -1,0 +1,10 @@
+flask
+pandas
+requests
+yfinance
+transformers
+torch
+sentencepiece
+protobuf
+cryptography
+matplotlib
